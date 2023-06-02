@@ -9,7 +9,7 @@ require("dotenv").config();
 // proofRequest found in this file
 const {
   lt20230101: proofRequest,
-} = require("./proofRequestExamples/KYCAgeCredential/birthday");
+} = require("./proofRequestExamples/KYCAgeCredential/birthday.js");
 
 const app = express();
 const port = 3000;
@@ -50,6 +50,8 @@ app.post(apiPath.handleVerification, (req, res) => {
 async function getAuthQr(req, res) {
   const sessionId = req.query.sessionId;
 
+  console.log(`getAuthQr for ${sessionId}`);
+
   io.sockets.emit(sessionId, "getAuthQr - in progress, show loader");
 
   const uri = `${process.env.HOSTED_SERVER_URL}${apiPath.handleVerification}?sessionId=${sessionId}`;
@@ -80,6 +82,8 @@ async function getAuthQr(req, res) {
 // handleVerification verifies the proof after get-auth-qr callbacks
 async function handleVerification(req, res) {
   const sessionId = req.query.sessionId;
+
+  console.log(`handleVerification for ${sessionId}`);
 
   io.sockets.emit(sessionId, "handleVerification - in progress, show loader");
 
