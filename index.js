@@ -3,13 +3,9 @@ const { auth, resolver, loaders } = require("@iden3/js-iden3-auth");
 const getRawBody = require("raw-body");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const { KYCAgeCredential } = require("./vcHelpers/KYCAgeCredential");
 
 require("dotenv").config();
-
-// proofRequest found in this file
-const {
-  eq597010: proofRequest,
-} = require("./proofRequestExamples/KYCAgeCredential/documentType.js");
 
 const app = express();
 const port = 3000;
@@ -68,9 +64,18 @@ async function getAuthQr(req, res) {
 
   const scope = request.body.scope ?? [];
 
-  // specify your proof request here
-  request.body.scope = [...scope, proofRequest];
+  // design customised authentication requirement here using Query Language
+  // https://0xpolygonid.github.io/tutorials/verifier/verification-library/zk-query-language/
+  const credentialSubject = {
+    birthday: {
+      // users must be born before this year
+      // birthday is less than Jan 1, 2023
+      $lt: 20230101,
+    },
+  };
 
+  const proofRequest = KYCAgeCredential(credentialSubject);
+  request.body.scope = [...scope, proofRequest];
   console.log(proofRequest);
 
   // store this session's auth request
