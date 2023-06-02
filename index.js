@@ -131,6 +131,7 @@ async function handleVerification(req, res) {
       .set("Content-Type", "application/json")
       .send("User " + userId + " succesfully authenticated");
   } catch (error) {
+    console.log(error);
     io.sockets.emit(
       sessionId,
       "handleVerification - complete, failed, show retry"
