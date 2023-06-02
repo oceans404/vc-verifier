@@ -8,8 +8,8 @@ require("dotenv").config();
 
 // proofRequest found in this file
 const {
-  lt20230101: proofRequest,
-} = require("./proofRequestExamples/KYCAgeCredential/birthday.js");
+  eq597010: proofRequest,
+} = require("./proofRequestExamples/KYCAgeCredential/documentType.js");
 
 const app = express();
 const port = 3000;
@@ -70,6 +70,8 @@ async function getAuthQr(req, res) {
 
   // specify your proof request here
   request.body.scope = [...scope, proofRequest];
+
+  console.log(proofRequest);
 
   // store this session's auth request
   authRequests.set(sessionId, request);
