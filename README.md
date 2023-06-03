@@ -1,8 +1,18 @@
 # Polygon ID VC Verifier Server
 
+This server contains half the code you'll need to set up a VC (Verifiable Credential) gated website with Polygon ID. Complete local server setup below, then hook this verification server up to a frontend so you can limit access based on holding a VC that satisifies your requirements.
+
+## Server functionality
+
+- Allows [Socket.io polling](https://socket.io/docs/v3/how-it-works/) to emit session specific events back to connected clients
+
+- Generates a [Query Based Request](https://0xpolygonid.github.io/tutorials/verifier/verification-library/request-api-guide/#query-based-request) in the form of a QR code that the user can scan to prove they own a credential that satisfies certain requirements. It also specifies the callback endpoint for verification
+
+- Reports [Verification](https://0xpolygonid.github.io/tutorials/verifier/verification-library/verification-api-guide/) of the proof sent by the user from their Polygon ID Wallet via callback
+
 ## Local server setup
 
-1. ⭐ Star this repo so you have it for future reference, then clone it and install dependencies
+#### 1. ⭐ Star this repo so you have it for future reference, then clone it and install dependencies
 
 ```bash
 git clone https://github.com/oceans404/vc-verifier
@@ -10,7 +20,7 @@ cd vc-verifier
 npm i
 ```
 
-2. Create a .env file by copying my sample
+#### 2. Create a .env file by copying my sample
 
 In your .env file,
 
@@ -22,13 +32,13 @@ cp .env.sample .env;
 - Optionally update the `VERIFIER_DID` to your DID
 - Don't change `HOSTED_SERVER_URL` or `CLIENT_URL` yet
 
-3. Run your server on port 3000
+#### 3. Run your server on port 3000
 
 ```bash
 node index.js
 ```
 
-4. Set up ngrok server forwarding.
+#### 4. Set up ngrok server forwarding.
 
 If you don't have ngrok already set up, install [ngrok](https://ngrok.com/download) via homebrew or download. [Login](https://dashboard.ngrok.com/login) (I used github login) to create a free account and add your account's config token to the command line.
 
@@ -44,13 +54,13 @@ You'll see a forwarding address in the logs
 Forwarding  https://abc-your-forwarding-address-def.ngrok-free.app -> http://localhost:3000
 ```
 
-5. Update the `HOSTED_SERVER_URL` field your .env file to your forwarding address
+#### 5. Update the `HOSTED_SERVER_URL` field your .env file to your forwarding address
 
 ```bash
 HOSTED_SERVER_URL="https://abc-your-forwarding-address-def.ngrok-free.app"
 ```
 
-6. Optionally customize your own proof request by changing the credentialSubject in `proofRequest.js`
+#### 6. Optionally customize your own proof request by changing the credentialSubject in [`proofRequest.js`](https://github.com/oceans404/vc-verifier/blob/main/proofRequest.js)
 
 ex 1: User must have Taylor Swift's [exact](https://0xpolygonid.github.io/tutorials/verifier/verification-library/zk-query-language/#equals-operator-1) birthday - December 13, 1989
 
@@ -89,15 +99,7 @@ If all these are satisfied by the verifier, an authResponse with fields for did_
 
 7. Test the server by hooking it up to a frontend. [WIP]
 
-## Server functionality
-
-The server
-
-- Allows [Socket.io polling](https://socket.io/docs/v3/how-it-works/) to emit session specific events back to connected clients
-
-- Generates a [Query Based Request](https://0xpolygonid.github.io/tutorials/verifier/verification-library/request-api-guide/#query-based-request) in the form of a QR code that the user can scan to prove they own a credential that satisfies certain requirements. It also specifies the callback endpoint for verification
-
-- Reports [Verification](https://0xpolygonid.github.io/tutorials/verifier/verification-library/verification-api-guide/) of the proof sent by the user from their Polygon ID Wallet via callback
+# More info
 
 ## Keys folder
 
