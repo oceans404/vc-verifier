@@ -3,7 +3,7 @@ const { auth, resolver, loaders } = require("@iden3/js-iden3-auth");
 const getRawBody = require("raw-body");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const { KYCAgeCredential } = require("./vcHelpers/KYCAgeCredential");
+const { humanReadableAuthReason, proofRequest } = require("./proofRequest");
 
 require("dotenv").config();
 
@@ -42,19 +42,34 @@ app.post(apiPath.handleVerification, (req, res) => {
   handleVerification(req, res);
 });
 
+const STATUS = {
+  IN_PROGRESS: "IN_PROGRESS",
+  ERROR: "ERROR",
+  DONE: "DONE",
+};
+
+const socketMessage = (fn, status, data) => ({
+  fn,
+  status,
+  data,
+});
+
 // GetQR returns auth request
 async function getAuthQr(req, res) {
   const sessionId = req.query.sessionId;
 
   console.log(`getAuthQr for ${sessionId}`);
 
-  io.sockets.emit(sessionId, "getAuthQr - in progress, show loader");
+  io.sockets.emit(
+    sessionId,
+    socketMessage("getAuthQr", STATUS.IN_PROGRESS, sessionId)
+  );
 
   const uri = `${process.env.HOSTED_SERVER_URL}${apiPath.handleVerification}?sessionId=${sessionId}`;
   // Generate request for basic authentication
   // https://0xpolygonid.github.io/tutorials/verifier/verification-library/request-api-guide/#createauthorizationrequest
   const request = auth.createAuthorizationRequest(
-    "Verify Birthday",
+    humanReadableAuthReason,
     process.env.VERIFIER_DID,
     uri
   );
@@ -63,25 +78,12 @@ async function getAuthQr(req, res) {
   request.thid = sessionId;
 
   const scope = request.body.scope ?? [];
-
-  // design customised authentication requirement here using Query Language
-  // https://0xpolygonid.github.io/tutorials/verifier/verification-library/zk-query-language/
-  const credentialSubject = {
-    birthday: {
-      // users must be born before this year
-      // birthday is less than Jan 1, 2023
-      $lt: 20230101,
-    },
-  };
-
-  const proofRequest = KYCAgeCredential(credentialSubject);
   request.body.scope = [...scope, proofRequest];
-  console.log(proofRequest);
 
   // store this session's auth request
   authRequests.set(sessionId, request);
 
-  io.sockets.emit(sessionId, "getAuthQr - done, show QR");
+  io.sockets.emit(sessionId, socketMessage("getAuthQr", STATUS.DONE, request));
 
   return res.status(200).set("Content-Type", "application/json").send(request);
 }
@@ -90,9 +92,15 @@ async function getAuthQr(req, res) {
 async function handleVerification(req, res) {
   const sessionId = req.query.sessionId;
 
+  // get this session's auth request for verification
+  const authRequest = authRequests.get(sessionId);
+
   console.log(`handleVerification for ${sessionId}`);
 
-  io.sockets.emit(sessionId, "handleVerification - in progress, show loader");
+  io.sockets.emit(
+    sessionId,
+    socketMessage("handleVerification", STATUS.IN_PROGRESS, authRequest)
+  );
 
   // get JWZ token params from the post request
   const raw = await getRawBody(req);
@@ -113,9 +121,6 @@ async function handleVerification(req, res) {
     ["polygon:mumbai"]: ethStateResolver,
   };
 
-  // get this session's auth request for verification
-  const authRequest = authRequests.get(sessionId);
-
   // Locate the directory that contains circuit's verification keys
   const verificationKeyloader = new loaders.FSKeyLoader(keyDIR);
   const sLoader = new loaders.UniversalSchemaLoader("ipfs.io");
@@ -129,17 +134,17 @@ async function handleVerification(req, res) {
     const userId = authResponse.from;
     io.sockets.emit(
       sessionId,
-      "handleVerification - complete, passed! show VC gated content"
+      socketMessage("handleVerification", STATUS.DONE, authResponse)
     );
     return res
       .status(200)
       .set("Content-Type", "application/json")
       .send("User " + userId + " succesfully authenticated");
   } catch (error) {
-    console.log(error);
+    console.log("handleVerification error", sessionId, error);
     io.sockets.emit(
       sessionId,
-      "handleVerification - complete, failed, show retry"
+      socketMessage("handleVerification", STATUS.ERROR, error)
     );
     return res.status(500).send(error);
   }
