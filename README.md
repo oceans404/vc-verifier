@@ -104,7 +104,9 @@ This circuit
 
 If all these are satisfied by the verifier, an authResponse with fields for did_doc and scope containing the valid proof will be returned via the handleVerification callback function. 🎉
 
-7. Test the server by hooking it up to a frontend. [WIP]
+#### 7. Hook the server up to a frontend
+  - github repo: https://github.com/oceans404/vc-gated-website
+  - website: https://birthday-gated-website.on.fleek.co
 
 # More info
 
