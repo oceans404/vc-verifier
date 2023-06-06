@@ -1,11 +1,11 @@
 # Polygon ID VC Verifier Server
 
-This server contains half the code you'll need to set up a VC (Verifiable Credential) gated website with Polygon ID. Complete local server setup below, then hook this verification server up to a frontend so you can limit access based on holding a VC that satisifies your requirements.
+This repo contains the server code you'll need to set up a VC (Verifiable Credential) gated website with Polygon ID. Complete local server setup below, then hook this verification server up to a frontend so you can limit access based on holding a VC that satisifies your requirements.
 
-- Server
+- **Part 1: VC Verifier Server**
   - github repo: this page!
   - server hosted: https://vc-birthday-server.onrender.com
-- Frontend 
+- Part 2: Frontend 
   - github repo: https://github.com/oceans404/vc-gated-website
   - website: https://birthday-gated-website.on.fleek.co
 
@@ -91,9 +91,26 @@ ex 2: User's KYCAgeCredential documentType must be [greater than](https://0xpoly
 
 ```
 
-If you don't customize `proofRequest.js`, this server will send a verification request for an KYCAgeCredential proof to the [credentialAtomicQuerySigV2 circuit](https://docs.iden3.io/protocol/main-circuits/#credentialatomicquerysigv2) because the circuitId in `vcHelpers/KYCAgeCredential.js` is set to credentialAtomicQuerySigV2.
+**default: [proofRequest](https://github.com/oceans404/vc-verifier/blob/main/proofRequest.js#L8)**
 
-This circuit
+If you don't customize `proofRequest.js`, this server will send a verification request for an KYCAgeCredential proof with a birthday before January 1, 2023 to the [credentialAtomicQuerySigV2 circuit](https://docs.iden3.io/protocol/main-circuits/#credentialatomicquerysigv2). This circuit is specified by the circuitId in `vcHelpers/KYCAgeCredential.js`, set to credentialAtomicQuerySigV2.
+
+```js
+{
+  birthday: {
+    // users must be born before this year
+    // birthday is less than Jan 1, 2023
+    $lt: 20230101,
+  },
+};
+
+```
+
+<img width="162" alt="proof" src="https://github.com/oceans404/vc-verifier/assets/91382964/ab18d8a6-ca14-4503-b7cf-c4bac8ccd869">
+
+
+
+The credentialAtomicQuerySigV2 circuit
 
 - Verifies that the prover (your user) is owner of a VC with the KYCAgeCredential type
 - Verifies that the identity is the subject of the claim
@@ -102,11 +119,25 @@ This circuit
 - Verifies that the claim is not revoked by the issuer and is not expired
 - Verifies that the query posed by the verifier is satisfied by the claim. The check, `$lt: 20230101`, written in [Query Language](https://0xpolygonid.github.io/tutorials/verifier/verification-library/zk-query-language/) verifies that the `birthday` credentialSubject is less than 20230101 or that the user's birthday is before Jan 1, 2023. In human terms, the user "Must be born before this year."
 
+
+
 If all these are satisfied by the verifier, an authResponse with fields for did_doc and scope containing the valid proof will be returned via the handleVerification callback function. 🎉
 
-#### 7. Hook the server up to a frontend
-  - github repo: https://github.com/oceans404/vc-gated-website
-  - website: https://birthday-gated-website.on.fleek.co
+#### 7. Hosting the server (optional)
+
+You are currently running the server on localhost and forwarding to [ngrok](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1) to exposse it to the internet. 
+
+If you'd like to host the server, you can use something like [Render](https://render.com/), [documented by me here](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1). Connect your repo, then make sure to add all your environment variables from .env.
+
+Note: You'll run into CORS errors if you try to hit the server from any frontend other than the one matching the [CLIENT_URL](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L4) env variable you set. For example, once you host your frontend using Vercel or Fleek, and you're no longer connecting from localhost:8080, you'll have to update the CLIENT_URL variable on Render to match. 
+
+https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1
+
+#### 8. Hook the server up to a frontend
+This repo covers server setup. Next hook the server up to a frontend using this code:
+  - frontend github repo: https://github.com/oceans404/vc-gated-website
+  - hosted frontend website: https://birthday-gated-website.on.fleek.co
+  - additional instructions on how to get a KYCAgeCredential Verifiable Credential and interact with the frontend: https://www.notion.so/oceans404/How-to-get-a-KYCAgeCredential-Verifiable-Credential-f3d34e7c98ec4147b6b2fae79066c4f6?pvs=4
 
 # More info
 
