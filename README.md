@@ -127,9 +127,12 @@ If all these are satisfied by the verifier, an authResponse with fields for did_
 
 You are currently running the server on localhost and forwarding to [ngrok](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1) to exposse it to the internet. 
 
-If you'd like to host the server, you can use something like [Render](https://render.com/), [documented by me here](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1). Connect your repo, then make sure to add all your environment variables from .env.
+If you'd like to host the server, you can use something like [Render](https://render.com/), [documented by me here](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1). Connect your repo, then make sure to add all your environment variables from .env. Update the HOSTED_SERVER_URL environment variable to match the server domain created by Render. Mine is https://vc-birthday-server.onrender.com
 
-Note: You'll run into CORS errors if you try to hit the server from any frontend other than the one matching the [CLIENT_URL](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L4) env variable you set. For example, once you host your frontend using Vercel or Fleek, and you're no longer connecting from localhost:8080, you'll have to update the CLIENT_URL variable on Render to match. 
+<img width="1265" alt="Screenshot 2023-06-06 at 11 11 06 AM" src="https://github.com/oceans404/vc-verifier/assets/91382964/dff0176b-1bb2-4c1f-b97c-7c2b50c03737">
+
+
+Note: You'll run into CORS errors if you try to hit the server from any frontend other than the one matching the [CLIENT_URL](https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L4) environment variable you set. For example, once you host your frontend using Vercel or Fleek, and you're no longer connecting from localhost:8080, you'll have to update the CLIENT_URL variable on Render to match. 
 
 https://github.com/oceans404/vc-verifier/blob/main/.env.sample#L1
 
