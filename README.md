@@ -1,5 +1,15 @@
 # Polygon ID VC Verifier Server
 
+
+The code below still works as of June 2023, but for the best developer experience, use my fullstack template instead - [fullstack-polygon-id-vc-gated-dapp](https://github.com/oceans404/fullstack-polygon-id-vc-gated-dapp) - It includes both the server and frontend and is everything you need to set up a KYCAgeCredential VC gated dapp with Polygon ID.
+
+
+-----
+
+## Deprecated instructions
+
+(use above repo)
+
 This repo contains the server code you'll need to set up a VC (Verifiable Credential) gated website with Polygon ID. Complete local server setup below, then hook this verification server up to a frontend so you can limit access based on holding a VC that satisifies your requirements.
 
 - **Part 1: VC Verifier Server**
