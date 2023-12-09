@@ -122,11 +122,6 @@ async function handleVerification(req, res) {
     ["polygon:mumbai"]: ethStateResolver,
   };
 
-  // Locate the directory that contains circuit's verification keys
-  //const verificationKeyloader = new loaders.FSKeyLoader(keyDIR);
-  //const sLoader = new loaders.UniversalSchemaLoader("ipfs.io");
-  //const verifier = new auth.Verifier(verificationKeyloader, sLoader, resolvers);
-
   const verifier = await auth.Verifier.newVerifier({
     stateResolver: resolvers,
     circuitsDir: path.join(__dirname, keyDIR),
